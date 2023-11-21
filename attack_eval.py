@@ -1,7 +1,7 @@
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 import seaborn as sns
 import matplotlib.pyplot as plt
-from models import BinaryClassifier
+from model_architecture import BinaryClassifier
 import numpy as np
 from dataset import get_attack_data
 

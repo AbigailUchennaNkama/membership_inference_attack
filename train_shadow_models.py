@@ -6,7 +6,7 @@ import numpy as np
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from tqdm.auto import tqdm
-from models import ShadowNet
+from model_architecture import ShadowNet
 from dataset import get_shadow_data
 
 # Set random seed

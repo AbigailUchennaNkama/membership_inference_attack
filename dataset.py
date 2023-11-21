@@ -7,7 +7,7 @@ from models import ShadowNet
 import pandas as pd
 from torch.utils.data import DataLoader, random_split, TensorDataset
 from sklearn.model_selection import train_test_split
-from models import load_model, ShadowNet
+from model_architecture import load_model, ShadowNet
 
 #Create shadow model dataset
 # Set random seed

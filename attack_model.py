@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from tqdm.auto import tqdm
 from torch.utils.data import DataLoader, TensorDataset
-from models import load_model, BinaryClassifier
+from model_architecture import load_model, BinaryClassifier
 from dataset import get_attack_data
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -9,11 +9,11 @@ import os
 import shutil
 from pathlib import Path
 import random
-from torchvision.datasets.utils import download_url
 import tarfile
 from termcolor import colored
 from torchvision.models import resnet18
-from models import BinaryClassifier, load_model
+from torchvision.datasets.utils import download_url
+from model_architecture import BinaryClassifier, load_model
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
