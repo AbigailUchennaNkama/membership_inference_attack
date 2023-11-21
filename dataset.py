@@ -3,7 +3,6 @@ import torch.nn as nn
 from torchvision import datasets, transforms
 import numpy as np
 from tqdm.auto import tqdm
-from models import ShadowNet
 import pandas as pd
 from torch.utils.data import DataLoader, random_split, TensorDataset
 from sklearn.model_selection import train_test_split
