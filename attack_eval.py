@@ -1,55 +1,29 @@
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 import seaborn as sns
 import matplotlib.pyplot as plt
+from models import BinaryClassifier
+import numpy as np
+from dataset import get_attack_data
 
+# Calculate accuracy (a classification metric)
+def accuracy_fn(y_true, y_pred):
+    correct = torch.eq(y_true, y_pred).sum().item() # torch.eq() calculates where two tensors are equal
+    acc = (correct / len(y_pred)) * 100
+    return acc
 
-
-class BinaryClassifier(nn.Module):
-    def __init__(self, input_size=3):  # Adjust input_size to match the data size
-        super(BinaryClassifier, self).__init__()
-        self.fc1 = nn.Linear(input_size, 128)
-        self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(128, 64)
-        self.relu2 = nn.ReLU()
-        self.dropout = nn.Dropout(0.5)
-        self.fc3 = nn.Linear(64, 2)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.relu1(x)
-        x = self.fc2(x)
-        x = self.relu2(x)
-        x = self.dropout(x)
-        x = self.fc3(x)
-        return x
-
-
-def load_attack_model():
-    local_path = './attack_model.pth'
-    weights_pretrained = torch.load(local_path, map_location=DEVICE)
-
-    # Initialize the model
-    model = BinaryClassifier()
-    model.load_state_dict(weights_pretrained)
-    model.to(DEVICE)
-    model.eval()
-    return model
+loss_fn = nn.CrossEntropyLoss()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Move values to device
 torch.manual_seed(42)
+
 def eval_model(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
                loss_fn: torch.nn.Module,
                accuracy_fn,
                device: torch.device = device):
-    """Evaluates a given model on a given dataset.
 
-    Args:
-        model (torch.nn.Module): A PyTorch model capable of making predictions on data_loader.
-        data_loader (torch.utils.data.DataLoader): The target dataset to predict on.
-        loss_fn (torch.nn.Module): The loss function of model.
-        accuracy_fn: An accuracy function to compare the models predictions to the truth labels.
-        device (str, optional): Target device to compute on. Defaults to device.
+    """Evaluates a the attack model on the test dataset.
     """
     loss, acc = 0, 0
     true_labels = []
@@ -76,13 +50,6 @@ def eval_model(model: torch.nn.Module,
         "model_loss": loss.item(),
         "model_acc": acc
         }
-
-# Calculate model 1 results with device-agnostic code
-true_labels, predicted_scores, model_results = eval_model(model=binary_model, data_loader=test_loader,
-    loss_fn=loss_fn, accuracy_fn=accuracy_fn,
-    device=device
-)
-model_results
 
 
 #plot confusion metrix
@@ -116,16 +83,25 @@ def plot_roc_curve(y_true, y_scores, title='Receiver Operating Characteristic (R
     plt.legend(loc='lower right')
     plt.show()
 
-class_names = ['non-member', 'member']
+def eval():
+    binary_model = BinaryClassifier()
+    binary_model = binary_model.to(device)
+    _, _, test_loader = get_attack_data()
+    true_labels, predicted_scores, model_results = eval_model(model=binary_model,
+                                                              data_loader=test_loader,
+                                                              loss_fn=loss_fn, accuracy_fn=accuracy_fn,
+                                                              device=device
+                                                              )
+    print(model_results)
 
-# Get true labels and predicted probabilities for the test set
-#true_labels, predicted_scores = get_true_labels_and_scores(binary_model, test_loader)
+    class_names = ['non-member', 'member']
+    predicted_labels = np.argmax(predicted_scores, axis=1)
 
-# Convert predicted probabilities to predicted class labels
-predicted_labels = np.argmax(predicted_scores, axis=1)
+    # Plot confusion matrix
+    plot_confusion_matrix(true_labels, predicted_labels, class_names)
 
-# Plot confusion matrix
-plot_confusion_matrix(true_labels, predicted_labels, class_names)
+    # Plot ROC curve
+    plot_roc_curve(true_labels, predicted_scores)
 
-# Plot ROC curve
-plot_roc_curve(true_labels, predicted_scores)
+if __name__ == "__main__":
+    eval()

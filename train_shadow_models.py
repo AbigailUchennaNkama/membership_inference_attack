@@ -6,15 +6,13 @@ import numpy as np
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from tqdm.auto import tqdm
+from models import ShadowNet
+from dataset import get_shadow_data
 
-#Create shadow model dataset
-
-# Set random seed for reproducibility
+# Set random seed
 seed = 42
 np.random.seed(seed)
 torch.manual_seed(seed)
-
-# Check if GPU is available and set the device accordingly
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparameters
@@ -24,36 +22,7 @@ batch_size = 64
 learning_rate = 0.001
 epochs = 10
 
-# Load CIFAR-10 dataset
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
-
-# Load CIFAR-10 dataset
-cifar_dataset = datasets.CIFAR10(root="./data", train=True, download=True, transform=transform)
-cifar_test_dataset = datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
-
-
-# Create train, validation, and test datasets
-train_datasets = []
-val_datasets = []
-test_datasets = []
-
-for _ in range(3):
-    # Train and validation split for shadow model
-    train_data, val_data = random_split(cifar_dataset, [num_samples_per_shadow, (len(cifar_dataset) - num_samples_per_shadow)])
-    test_data, _ = random_split(cifar_test_dataset, [5000, len(cifar_test_dataset) - 5000])
-
-    train_datasets.append(train_data)
-    val_datasets.append(val_data)
-    test_datasets.append(test_data)
-
-# Create dataloaders for train, validation, and test datasets
-train_loaders = [DataLoader(dataset, batch_size=batch_size, shuffle=True) for dataset in train_datasets]
-val_loaders = [DataLoader(dataset, batch_size=batch_size, shuffle=True) for dataset in val_datasets]
-test_loaders = [DataLoader(dataset, batch_size=batch_size, shuffle=False) for dataset in test_datasets]
-
+train_loaders, val_loaders, test_loaders = get_shadow_data()
 
 # Function to train a shadow model
 def train_shadow_model(model, train_loader, val_loader, epochs=5):
@@ -109,21 +78,18 @@ def train_shadow_model(model, train_loader, val_loader, epochs=5):
               f'Val Accuracy: {100 * correct_val / total_val:.2f}%')
 
 # Train three shadow models
-# Train three shadow models
-shadow_models = []
+#get dataloaders
+train_loaders, val_loaders, test_loaders = get_shadow_data()
+
 for i, (shadow_train_loader, shadow_val_loader) in enumerate(zip(train_loaders, val_loaders)):
     print(f"Training Shadow Model {i+1}")
 
-    # Create an instance of the ShadowNet
     shadow_model = ShadowNet(num_classes=num_classes, use_batchnorm=True, use_dropout=True)
     shadow_model.to(device)
 
     # Train the shadow model
     train_shadow_model(shadow_model, shadow_train_loader, shadow_val_loader, epochs=epochs)
 
-    # Save the trained shadow model
     torch.save(shadow_model.state_dict(), f'shadow_model_{i+1}.pth')
-
-    shadow_models.append(shadow_model)
 
 print("Training of Shadow Models complete.")

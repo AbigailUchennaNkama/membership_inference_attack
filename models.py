@@ -96,3 +96,16 @@ class BinaryClassifier(nn.Module):
         x = self.relu2(x)
         x = self.fc3(x)
         return x
+
+
+#function to load models
+def load_model(model_path, model_class, num_classes):
+    local_path = model_path
+    weights_pretrained = torch.load(local_path, map_location=DEVICE)
+
+    # Initialize the model
+    model = model_class(num_classes)
+    model.load_state_dict(weights_pretrained)
+    model.to(DEVICE)
+
+    return model

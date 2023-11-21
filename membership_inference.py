@@ -13,39 +13,9 @@ from torchvision.datasets.utils import download_url
 import tarfile
 from termcolor import colored
 from torchvision.models import resnet18
+from models import BinaryClassifier, load_model
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-class BinaryClassifier(nn.Module):
-    def __init__(self, input_size=3):  # Adjust input_size to match the data size
-        super(BinaryClassifier, self).__init__()
-        self.fc1 = nn.Linear(input_size, 128)
-        self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(128, 64)
-        self.relu2 = nn.ReLU()
-        self.dropout = nn.Dropout(0.5)
-        self.fc3 = nn.Linear(64, 2)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.relu1(x)
-        x = self.fc2(x)
-        x = self.relu2(x)
-        x = self.dropout(x)
-        x = self.fc3(x)
-        return x
-
-
-# Function to load a model
-def load_target_model():
-    local_path = "weights_resnet18_cifar10.pth"
-    weights_pretrained = torch.load(local_path, map_location=DEVICE)
-
-    model = resnet18(weights=None, num_classes=10)
-    model.load_state_dict(weights_pretrained)
-    model.to(DEVICE)
-    model.eval()
-    return model
 
 def load_attack_model():
     local_path = './attack_model.pth'
@@ -60,10 +30,10 @@ def load_attack_model():
 
 # Function to predict membership
 
-def predict_membership(target_model_path, input_data_path, attack_model_path):
+def predict_membership(target_model_path, model_class, num_classes, input_data_path):
     # Load target model
-    target_model = load_target_model()
-    # Apply the same transformation used during training
+    target_model = load_model(target_model_path, model_class, num_classes)
+
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -79,9 +49,6 @@ def predict_membership(target_model_path, input_data_path, attack_model_path):
 
     # Load attack model
     attack_model = load_attack_model()
-
-    # Set the attack model to evaluation mode
-    attack_model.eval()
 
     # Forward pass through attack model
     with torch.no_grad():
@@ -99,6 +66,8 @@ def predict_membership(target_model_path, input_data_path, attack_model_path):
         colored_result = f'<font color="red">{result}</font>'
 
     display(HTML(colored_result))
+
+
 def membership_inference():
     #download and pre-process CIFAR10
     print("Creating sample dataset...")
@@ -111,11 +80,15 @@ def membership_inference():
 
     # Example usage with a datapoint from the CIFAR-10 dataset
     target_model_path = "./weights_resnet18_cifar10.pth"
-    attack_model_path = "./attack_model.pth"
     example_image_path = "/content/data/cifar10/test/cat/0004.png"
-
+    target_model_class = resnet18()
+    target_num_classes = 10
     # Make the prediction
-    predict_membership(target_model_path, example_image_path, attack_model_path)
+    predict_membership(
+        target_model_path,
+        target_model_class,
+        target_num_classes,
+        example_image_path)
 
 if __name__ == "__main__":
     membership_inference()
