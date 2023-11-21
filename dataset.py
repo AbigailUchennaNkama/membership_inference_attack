@@ -85,9 +85,9 @@ def create_attack_dataset(shadow_model, dataloader, is_member=True):
 
 def get_attack_data():
         #get shadow models
-        shadow_model_1 = load_model('./models/shadow_model_1.pth', ShadowNet, num_classes=10)
-        shadow_model_2 = load_model('./models/shadow_model_2.pth', ShadowNet, num_classes=10)
-        shadow_model_3 = load_model('./models/shadow_model_3.pth', ShadowNet, num_classes=10)
+        shadow_model_1 = load_model('models/shadow_model_1.pth', ShadowNet, num_classes=10)
+        shadow_model_2 = load_model('models/shadow_model_2.pth', ShadowNet, num_classes=10)
+        shadow_model_3 = load_model('models/shadow_model_3.pth', ShadowNet, num_classes=10)
 
         #get shadow train and test data
         train_loaders, _, test_loaders = get_shadow_data()
