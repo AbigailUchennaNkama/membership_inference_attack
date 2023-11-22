@@ -4,6 +4,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from torchvision import transforms, models
 from PIL import Image
+from IPython import display
 from IPython.display import HTML
 import os
 import shutil
