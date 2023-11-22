@@ -1,3 +1,4 @@
+from torch import nn
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 import seaborn as sns
 import matplotlib.pyplot as plt
