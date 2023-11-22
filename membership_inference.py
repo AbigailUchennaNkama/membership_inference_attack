@@ -17,8 +17,19 @@ from model_architecture import BinaryClassifier, load_model
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+# Function to load a model
+def load_target_model():
+    local_path = "weights_resnet18_cifar10.pth"
+    weights_pretrained = torch.load(local_path, map_location=DEVICE)
+
+    model = resnet18(weights=None, num_classes=10)
+    model.load_state_dict(weights_pretrained)
+    model.to(DEVICE)
+    model.eval()
+    return model
+
 def load_attack_model():
-    local_path = 'attack_model.pth'
+    local_path = './attack_model.pth'
     weights_pretrained = torch.load(local_path, map_location=DEVICE)
 
     # Initialize the model
