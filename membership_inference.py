@@ -43,7 +43,7 @@ def load_attack_model():
 
 def predict_membership(target_model_path, model_class, num_classes, input_data_path):
     # Load target model
-    target_model = load_model(target_model_path, model_class, num_classes)
+    target_model = load_target_model()
 
     transform = transforms.Compose([
         transforms.ToTensor(),
