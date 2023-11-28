@@ -1,4 +1,8 @@
 import torch
+<<<<<<< HEAD
+=======
+from torch import nn
+>>>>>>> a4b2b10088ab0445d4226c9f25261a91c48c3344
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 import seaborn as sns
 import matplotlib.pyplot as plt

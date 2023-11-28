@@ -21,6 +21,8 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # Function to load a model
 def load_target_model():
     local_path = "weights_resnet18_cifar10.pth"
+def load_target_model(target_model_path):
+    local_path = target_model_path
     weights_pretrained = torch.load(local_path, map_location=DEVICE)
 
     model = resnet18(weights=None, num_classes=10)
@@ -42,9 +44,9 @@ def load_attack_model():
 
 # Function to predict membership
 
-def predict_membership(target_model_path, model_class, num_classes, input_data_path):
+def predict_membership(target_model_path, input_data_path):
     # Load target model
-    target_model = load_model(target_model_path, model_class, num_classes)
+    target_model = load_target_model(target_model_path)
 
     transform = transforms.Compose([
         transforms.ToTensor(),
