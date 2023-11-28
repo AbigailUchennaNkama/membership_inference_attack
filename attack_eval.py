@@ -1,9 +1,10 @@
+import torch
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 import seaborn as sns
 import matplotlib.pyplot as plt
 from model_architecture import BinaryClassifier
 import numpy as np
-from dataset import get_attack_data
+from get_data import get_attack_data
 
 # Calculate accuracy (a classification metric)
 def accuracy_fn(y_true, y_pred):

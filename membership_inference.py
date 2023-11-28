@@ -5,6 +5,7 @@ from torch.optim import lr_scheduler
 from torchvision import transforms, models
 from PIL import Image
 from IPython.display import HTML
+from IPython import display
 import os
 import shutil
 from pathlib import Path
@@ -17,12 +18,19 @@ from model_architecture import BinaryClassifier, load_model
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+# Function to load a model
+def load_target_model():
+    local_path = "weights_resnet18_cifar10.pth"
+    weights_pretrained = torch.load(local_path, map_location=DEVICE)
+
+    model = resnet18(weights=None, num_classes=10)
+    model.load_state_dict(weights_pretrained)
+    model.to(DEVICE)
+    model.eval()
+    return model
+
 def load_attack_model():
-<<<<<<< HEAD
-    local_path = './models/attack_model.pth'
-=======
-    local_path = '././models/attack_model.pth'
->>>>>>> 7a85d0312bd7d4387f44b11ebf7add17e2f59b0a
+    local_path = './attack_model.pth'
     weights_pretrained = torch.load(local_path, map_location=DEVICE)
 
     # Initialize the model
@@ -83,11 +91,7 @@ def membership_inference():
     print('---'*45)
 
     # Example usage with a datapoint from the CIFAR-10 dataset
-<<<<<<< HEAD
-    target_model_path = "./models/weights_resnet18_cifar10.pth"
-=======
-    target_model_path = "././models/weights_resnet18_cifar10.pth"
->>>>>>> 7a85d0312bd7d4387f44b11ebf7add17e2f59b0a
+    target_model_path = "weights_resnet18_cifar10.pth"
     example_image_path = "./data/cifar10/test/cat/0004.png"
     target_model_class = resnet18()
     target_num_classes = 10
